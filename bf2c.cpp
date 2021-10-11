@@ -178,5 +178,5 @@ int main(int argc, char** argv) {
         return 1;
     }
     #endif
-    //cout << generated_code << "\n";
+    cout << generated_code << "\n";
 }
