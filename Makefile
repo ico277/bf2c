@@ -1,4 +1,4 @@
-CXX=g++
+CXX=c++
 SOURCES=bf2c.cpp
 CXXFLAGS=-O3
 EXECUTABLE=bf2c
