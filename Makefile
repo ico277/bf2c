@@ -5,7 +5,7 @@ EXECUTABLE=bf2c
 PREFIX=/usr/local/bin
 
 all: build
-	./$(EXECUTABLE)
+	./$(EXECUTABLE) --version
 
 build:
 	$(CXX) $(SOURCES) $(CXXFLAGS) -o $(EXECUTABLE)
@@ -16,6 +16,9 @@ install: build
 uninstall:
 	rm -f $(PREFIX)/$(EXECUTABLE)
 
+exp: build
+	./examples.sh
+
 clean: $(EXECUTABLE)
-	rm -f $(EXECUTABLE)
+	rm -f $(EXECUTABLE) examples/*.out
 
