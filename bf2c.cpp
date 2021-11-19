@@ -1,3 +1,25 @@
+/*
+Copyright (c) 2021 ico277
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in al
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
 #include <iostream>
 #include <fstream>
 #include <list>
@@ -14,17 +36,6 @@
 
 using namespace std;
 
-enum Operation {
-    MEM_ADD,
-    MEM_DEC,
-    PTR_ADD,
-    PTR_DEC,
-    PRINT_CHAR,
-    LOOP_START,
-    LOOP_END,
-};
-
-list<Operation> operations = {};
 string template_file = 
 "/* This File was generated using BF2C */\n"
 "\n"
@@ -255,74 +266,40 @@ int main(int argc, char** argv) {
 
     cout << "Compiling " << argv[1] << " ...\n";
 
+
+    string generated_code;
+    int loops = 1;
     for(char& c : brainfuck) {
+        for (int i = 1; i < loops; i++) {
+            generated_code += "    ";
+        }
         switch (c) {
             case '+':
-                //operations.push_back("++memory[mem_ptr];");
-                operations.push_back(Operation::MEM_ADD);
+                generated_code += "    ++memory[mem_ptr];\n";
                 break;
             case '-':
-                //operations.push_back("--memory[mem_ptr];");
-                operations.push_back(Operation::MEM_DEC);
+                generated_code += "    --memory[mem_ptr];\n";
                 break;
             case '>':
-                //operations.push_back("++mem_ptr;");
-                operations.push_back(Operation::PTR_ADD);
+                generated_code += "    ++mem_ptr;\n";
                 break;
             case '<':
-                //operations.push_back("--mem_ptr;");
-                operations.push_back(Operation::PTR_DEC);
+                generated_code += "    --mem_ptr;\n";
                 break;
             case '[':
-                //operations.push_back("while (memory[mem_ptr] != 0) {");
-                operations.push_back(Operation::LOOP_START);
+                generated_code += "    while (memory[mem_ptr] != 0) {\n";
+                ++loops;
                 break;
             case ']':
-                //operations.push_back("}");
-                operations.push_back(Operation::LOOP_END);
+                generated_code += "}\n";
+                --loops;
                 break;
             case '.':
-                //operations.push_back("putchar(memory[mem_ptr]);");
-                operations.push_back(Operation::PRINT_CHAR);
+                generated_code += "    putchar(memory[mem_ptr]);\n";
                 break;
             default:
                 cerr << "Syntax error: Invalid char '" << c << "'!\n";
                 //return 1;
-                break;
-        }
-    }
-    string generated_code;
-    //for (string& str : operations) {
-    //    generated_code += "    " + str + "\n";
-    //}
-    int loops = 1;
-    for (Operation& op : operations) {
-        for (int i = 1; i < loops; i++) {
-            generated_code += "    ";
-        }
-        switch (op) {
-            case Operation::MEM_ADD:
-                generated_code += "    ++memory[mem_ptr];\n";
-                break;
-            case Operation::MEM_DEC:
-                generated_code += "    --memory[mem_ptr];\n";
-                break;
-            case Operation::PTR_ADD:
-                generated_code += "    ++mem_ptr;\n";
-                break;
-            case Operation::PTR_DEC:
-                generated_code += "    --mem_ptr;\n";
-                break;
-            case Operation::PRINT_CHAR:
-                generated_code += "    putchar(memory[mem_ptr]);\n";
-                break;
-            case Operation::LOOP_START:
-                generated_code += "    while (memory[mem_ptr] != 0) {\n";
-                ++loops;
-                break;
-            case Operation::LOOP_END:
-                generated_code += "}\n";
-                --loops;
                 break;
         }
     }
