@@ -99,26 +99,24 @@ string get_output_file() {
     return file.str();
 }
 
-string compile_c(string code, int& exit_code) {
+string compile_c(string file_path, string code, int& exit_code) {
     exit_code = 0;
-    ofstream tmp_file;
-    string tmp_file_path = get_output_file();
-    tmp_file.open(tmp_file_path);
-    if (!tmp_file.is_open()) {
-        cerr << "Error: Couldn't write transpiled brainfuck to temporary file! (Creating temporary file '" << tmp_file_path << "' failed)";
+    ofstream file;
+    file.open(file_path);
+    if (!file.is_open()) {
+        cerr << "Error: Couldn't write transpiled brainfuck to file! (Creating file '" << file_path << "' failed)";
         return "";
     }
-    if (!tmp_file.write(code.c_str(), code.length())) {
-        cerr << "Error: Couldn't write transpiled brainfuck to temporary file! (Error writing to temporary file)";
+    if (!file.write(code.c_str(), code.length())) {
+        cerr << "Error: Couldn't write transpiled brainfuck to file! (Error writing to file)";
         return "";
     }
     string command = "cc ";
-    command.append(tmp_file_path);
+    command.append(file_path);
     command.append(" -o ");
     command.append(out_bin_file);
-    command.append(" ");
     cout << "running '" << command << "'\n";
-    command.append("2>&1");
+    command.append(" 2>&1");
     FILE *pPipe = popen(command.c_str(), "r");
     if (pPipe == nullptr) {
         cerr << "Error: No c compiler (cc) found! Be sure to have a c compiler installed and in your path!";
@@ -133,8 +131,7 @@ string compile_c(string code, int& exit_code) {
         result.append(buffer.data(), bytes);
     }
 
-    string sh_not_found = "sh: 1:";
-    if (result.rfind(sh_not_found) != string::npos) {
+    if (result.rfind("sh: 1:") != string::npos) {
         cerr << "Error: No c compiler (cc) found! Be sure to have a c compiler installed and in your path!";
         return "";
     }
@@ -264,7 +261,7 @@ int main(int argc, char** argv) {
 
     brainfuck = clean_brainfuck(brainfuck);
 
-    cout << "Compiling " << argv[1] << " ...\n";
+    cout << "Transpiling '" << argv[1] << "' ...\n";
 
 
     string generated_code;
@@ -306,7 +303,10 @@ int main(int argc, char** argv) {
     generated_code = replace(template_file, "#BRAINFUCK#", generated_code);
     #ifdef __unix__
     int code;
-    cout << compile_c(generated_code, code) << "\n";
+    string path = get_output_file();
+    cout << "Writing transpiled source to '" << path << "'\n";
+    cout << "Compiling transpiled source to '" << out_bin_file << "'\n";
+    cout << compile_c(path, generated_code, code);
     if (code != 0) {
         cerr << "There was an error compiling!\n";
         return 1;
